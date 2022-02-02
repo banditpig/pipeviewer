@@ -1,1 +1,6 @@
 /target
+.DS_Store
+.idea/modules.xml
+Cargo.lock
+.idea/vcs.xml
+.idea/pipeviewer.iml
