@@ -1,6 +1,5 @@
 use std::io::Result;
 use std::sync::mpsc::{Receiver, Sender};
-//
 
 pub fn stats_loop(
     silent: bool,
@@ -16,13 +15,9 @@ pub fn stats_loop(
         if !silent {
             eprint!("\r{}", total_bytes);
         }
-        if write_tx.send(buffer).is_err() {
+        if write_tx.send(buffer).is_err() || num_bytes == 0 {
             break;
         };
-
-        if num_bytes == 0 {
-            break;
-        }
     }
     if !silent {
         eprintln!();

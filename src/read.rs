@@ -4,11 +4,7 @@ use std::io::{self, BufReader, Read, Result};
 use std::sync::mpsc::Sender;
 
 pub fn read_loop(infile: &str, stats_tx: Sender<Vec<u8>>) -> Result<()> {
-    let mut reader: Box<dyn Read> = if !infile.is_empty() {
-        Box::new(BufReader::new(File::open(infile)?))
-    } else {
-        Box::new(io::stdin())
-    };
+    let mut reader = create_reader(infile);
 
     let mut buffer = [0; CHUNK_SIZE];
     loop {
@@ -26,4 +22,13 @@ pub fn read_loop(infile: &str, stats_tx: Sender<Vec<u8>>) -> Result<()> {
     let _ = stats_tx.send(Vec::new());
 
     Ok(())
+}
+
+fn create_reader(infile: &str) -> Box<dyn Read> {
+    let reader: Box<dyn Read> = if !infile.is_empty() {
+        Box::new(BufReader::new(File::open(infile).unwrap()))
+    } else {
+        Box::new(io::stdin())
+    };
+    reader
 }
