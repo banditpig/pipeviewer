@@ -1,8 +1,10 @@
 use args::*;
+use crossbeam_channel::{bounded, unbounded};
+
 use pipeviewer::*;
 use std::io::Result;
-use std::sync::mpsc;
-use std::sync::mpsc::{Receiver, Sender};
+
+// use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 
 fn main() -> Result<()> {
@@ -13,11 +15,11 @@ fn main() -> Result<()> {
         silent,
     } = args;
 
-    let (stats_tx, stats_rx): (Sender<Vec<u8>>, Receiver<Vec<u8>>) = mpsc::channel();
-    let (write_tx, write_rx): (Sender<Vec<u8>>, Receiver<Vec<u8>>) = mpsc::channel();
+    let (stats_tx, stats_rx) = unbounded();
+    let (write_tx, write_rx) = bounded(1024);
 
-    let read_handle = thread::spawn(move || read::read_loop(&infile, stats_tx));
-    let stats_handle = thread::spawn(move || stats::stats_loop(silent, stats_rx, write_tx));
+    let read_handle = thread::spawn(move || read::read_loop(&infile, stats_tx, write_tx));
+    let stats_handle = thread::spawn(move || stats::stats_loop(silent, stats_rx));
     let write_handle = thread::spawn(move || write::write_loop(&outfile, write_rx));
 
     let read_io_result = read_handle.join().unwrap();

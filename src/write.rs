@@ -1,8 +1,8 @@
 use std::fs::File;
 use std::io;
 
+use crossbeam_channel::Receiver;
 use std::io::{BufWriter, ErrorKind, Result, Write};
-use std::sync::mpsc::Receiver;
 
 pub fn write_loop(outfile: &str, write_rx: Receiver<Vec<u8>>) -> Result<()> {
     let mut writer = create_writer(outfile);
